@@ -7,24 +7,24 @@ from telegram.ext import (
     CommandHandler
 )
 
-
 # Пожалуйста соблюдайте копирайт и не удаляйте ничего.
-# Разработчик Курков Алексей. Версия 0.0.9 на момент публикации данного файла
+# KURKOFF PROJECT Версия 0.1.0 на момент публикации данного файла
 # Не забывайте изменять токены перед словом Bearer (само bearer не трогать!!!)
 # а так же изменить токен бота телеграм :) спасибо!!!
+# Мануал как настроить бота в моем тг канаое: t.me/kurkoffproject , спасибо!
 
 # Обработчик команды /start
 async def start(update, context):
     keyboard = [
-        [InlineKeyboardButton("Статус ПК", callback_data='info')],
-        [InlineKeyboardButton("Магазин информация", callback_data='magazin')],
-        [InlineKeyboardButton("Деньги на депозитах", callback_data='deposit')],
-        [InlineKeyboardButton("Информация про смену", callback_data='smena')],
-        [InlineKeyboardButton("F.A.Q", callback_data='faq')],
+        [InlineKeyboardButton("🖥 ПК", callback_data='info')],
+        [InlineKeyboardButton("🛒 Магазин", callback_data='magazin')],
+        [InlineKeyboardButton("💸 Общие депозиты", callback_data='deposit')],
+        [InlineKeyboardButton("👨‍💻 Смена", callback_data='smena')],
+        [InlineKeyboardButton("ℹ Полная версия", callback_data='faq')],
 
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text('👋 Привет! Что бы вернуться в меню , напишите /start . Разработчик: Алексей Курков. Версия: 0.0.9', reply_markup=reply_markup)
+    await update.message.reply_text('👋 Привет! Выбери интересующий пункт, для получения нужной информации.\n <a href="https://t.me/kurkoffproject">KURKOFF PROJECT</a> // Версия: 0.1.0', reply_markup=reply_markup, parse_mode="HTML")
 
 # Обработчик нажатия на кнопку
 async def button(update, context):
@@ -33,7 +33,7 @@ async def button(update, context):
     if query.data == 'info':
         url = 'https://billing.smartshell.gg/api/graphql'
         headers = {
-            'Authorization': 'Bearer ВАШ_ТОКЕН',
+            'Authorization': 'Bearer ВАШ_ТОКЕН(BEARER НЕ УДАЛЯЕМ В НАЧАЛЕ)',
             'Content-Type': 'application/json'
         }
         body = """query Hosts {
@@ -73,11 +73,11 @@ async def button(update, context):
         text = "=================================\n"
         for el in data["data"]["hosts"]:
 
-            text += f"""ID: {el["id"]}
-Место: {el["position"]}
-Название: {el["alias"]}
-ДНС: {el["dns_name"]}
-Состояние: {el["online"]}
+            text += f"""🆔ID: {el["id"]}
+🖥Место: {el["position"]}
+📝Название: {el["alias"]}
+🖥ДНС: {el["dns_name"]}
+🟩/🟥Состояние: {el["online"]}
 =================================
 """
         print(text)
@@ -86,7 +86,7 @@ async def button(update, context):
     if query.data == 'magazin':
         url = 'https://billing.smartshell.gg/api/graphql'
         headers = {
-            'Authorization': 'Bearer ВАШ_ТОКЕН',
+            'Authorization': 'Bearer ВАШ_ТОКЕН(BEARER НЕ УДАЛЯЕМ В НАЧАЛЕ)',
             'Content-Type': 'application/json'
         }
         body = """query Goods {
@@ -124,11 +124,11 @@ async def button(update, context):
         for el in data["data"]["goods"]:
 
             await context.bot.send_message(chat_id=query.message.chat_id,
-                                     text = f"""ID товара: {el["id"]}
-Название: {el["title"]}
-Цена продажи: {el["cost"]}
-Цена закупки: {el["wholesale_cost"]}
-Наличие: {el["amount"]}
+                                     text = f"""🆔ID: {el["id"]}
+📝Название: {el["title"]}
+🟩Цена продажи: {el["cost"]} ₽
+🟥Цена закупки: {el["wholesale_cost"]} ₽
+🟦Наличие: {el["amount"]} ШТ
 =================================
 """)
         print(text)
@@ -137,7 +137,7 @@ async def button(update, context):
     if query.data == 'deposit':
         url = 'https://billing.smartshell.gg/api/graphql'
         headers = {
-            'Authorization': 'Bearer ВАШ_ТОКЕН',
+            'Authorization': 'Bearer ВАШ_ТОКЕН(BEARER НЕ УДАЛЯЕМ В НАЧАЛЕ)',
             'Content-Type': 'application/json'
         }
         body = """query Clients {
@@ -163,7 +163,7 @@ async def button(update, context):
     if query.data == 'smena':
         url = 'https://billing.smartshell.gg/api/graphql'
         headers = {
-            'Authorization': 'Bearer ВАШ_ТОКЕН',
+            'Authorization': 'Bearer ВАШ_ТОКЕН(BEARER НЕ УДАЛЯЕМ В НАЧАЛЕ)',
             'Content-Type': 'application/json'
         }
         body = """query ActiveWorkShift {
@@ -196,12 +196,14 @@ async def button(update, context):
         response = requests.post(url, headers=headers, json={"query": body})
         print(response.status_code)
 
+        data = response.json()
         print(data)
         # Выводим информацию
-        text = f"Имя: {data['data']['activeWorkShift']['worker']['first_name']}"
-        text_2 = f"Заработок за сегодня: {data['data']['activeWorkShift']['payments'][0]['sum']} ₽"
-        text_3 = f"Номер телефона сотрудника: {data['data']['activeWorkShift']['worker']['phone']}"
-        text_4 = f"Открыл смену: {data['data']['activeWorkShift']['created_at']}"
+        text = f"🧑‍💻Имя:{data['data']['activeWorkShift']['worker']['first_name']}"
+        text_2 = f"🧑‍💻Фамилия:{data['data']['activeWorkShift']['worker']['last_name']}"
+        text_3 = f"💰Наличные за сегодня:{data['data']['activeWorkShift']['payments'][0]['sum']}"
+        text_4 = f"📲Номер телефона сотрудника:{data['data']['activeWorkShift']['worker']['phone']}"
+        text_5 = f"⏰Открыл смену:{data['data']['activeWorkShift']['created_at']}"
 
 
         print(text)
@@ -210,30 +212,20 @@ async def button(update, context):
         await context.bot.send_message(chat_id=query.message.chat_id, text=text_3)
         await context.bot.send_message(chat_id=query.message.chat_id, text=text_4)
         await context.bot.send_message(chat_id=query.message.chat_id, text=text_5)
-
+        
 
     if query.data == 'faq':
 
         # Выводим информацию
-        text = "===========FAQ============"
-        text_2 = "Статус пк -  показывает вам информацию ID , МЕСТО, НАЗВАНИЕ , СОСТОЯНИЕ. Где ID это уникальный номер ПК, Место и Название показывает какой компьютер по счету и его название в  WINDOWS, Состояние: TRUE or False (Вкючен или выключен) По желанию можно добавить юзера который сидит за пк (если такой есть)"
-        text_3 = "Магазин информация - показывает вам ID , Название , Цена продажи , Цена закупки , Наличие."
-        text_4 = "Деньги на депозитах - Показывает общую сумму которая на балансах юзеров (клиентов)"
-        text_5 = "Информация про смену показывает вам - Имя сотрудника на смене, Заработок на смену , Номер телефона сотрудника, Дата/Время открытия смены"
-
-
+        text = "Купить полную версию бота можно тут @kurkoffproject"
 
         print(text)
         await context.bot.send_message(chat_id=query.message.chat_id, text=text)
-        await context.bot.send_message(chat_id=query.message.chat_id, text=text_2)
-        await context.bot.send_message(chat_id=query.message.chat_id, text=text_3)
-        await context.bot.send_message(chat_id=query.message.chat_id, text=text_4)
-        await context.bot.send_message(chat_id=query.message.chat_id, text=text_5)
-
+   
 def main():
 
     # ДОСТУП БОТА :) НЕ ЗАБЫВАЕМ ВСТАВЛЯТЬ ТОКЕН
-    application = Application.builder().token("ВАШ_ТОКЕН").build()
+    application = Application.builder().token("токен_из_botfather").build()
 
     # Обработка команды /start
     application.add_handler(CommandHandler("start", start))
